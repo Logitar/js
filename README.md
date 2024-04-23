@@ -1,3 +1,3 @@
 # Logitar.js
 
-TODO
+JavaScript helper functions distributed by Logitar.
