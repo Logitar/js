@@ -1,0 +1,45 @@
+{
+  "name": "logitar-js",
+  "version": "0.1.0",
+  "description": "Helper functions distributed by Logitar.",
+  "keywords": [
+    "logitar",
+    "helper",
+    "functions",
+    "array",
+    "date",
+    "object",
+    "parsing",
+    "string",
+    "url"
+  ],
+  "homepage": "https://www.francispion.ca/",
+  "bugs": {
+    "url": "https://github.com/Logitar/js/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Francis Pion",
+    "email": "francispion@hotmail.com",
+    "url": "https://www.francispion.ca/"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Logitar/js"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run --coverage",
+    "test:dev": "vitest",
+    "format": "prettier --write src/"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^1.5.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.5",
+    "vitest": "^1.5.0"
+  }
+}
