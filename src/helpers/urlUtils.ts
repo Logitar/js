@@ -577,8 +577,8 @@ export class UrlBuilder implements IUrlBuilder {
     key = key.trim();
     if (isNullOrWhiteSpace(value)) {
       this.parameters.delete(key);
-    } else {
-      this.parameters.set(key, value?.trim() ?? "");
+    } else if (value) {
+      this.parameters.set(key, value.trim());
     }
     return this;
   }

@@ -193,6 +193,9 @@ describe("urlUtils.UrlBuilder.fragment", () => {
     builder.setFragment("#index");
     builder.setFragment(" # ");
     expect(builder.getFragment()).toBeUndefined();
+    builder.setFragment("#index");
+    builder.setFragment();
+    expect(builder.getFragment()).toBeUndefined();
   });
 
   it.concurrent("should set the correct fragment", () => {
@@ -201,6 +204,15 @@ describe("urlUtils.UrlBuilder.fragment", () => {
     expect(builder.getFragment()).toBe("#index");
     builder.setFragment(" #  index   ");
     expect(builder.getFragment()).toBe("#index");
+  });
+});
+
+describe("urlUtils.UrlBuilder.getSupportedSchemes", () => {
+  it.concurrent("should return the supported schemes", () => {
+    const schemes: string[] = UrlBuilder.getSupportedSchemes();
+    expect(schemes.length).toBe(2);
+    expect(schemes[0]).toBe("http");
+    expect(schemes[1]).toBe("https");
   });
 });
 
@@ -256,6 +268,9 @@ describe("urlUtils.UrlBuilder.parameter", () => {
     builder.setParameter("storeId", "");
     builder.setParameter("articleId", "pain");
     builder.setParameter("articleId", "  ");
+    builder.setParameter("articleId", "jus-d-orange");
+    builder.setParameter("articleId");
+    expect(builder.getParameters().size).toBe(0);
   });
 
   it.concurrent("should set the correct parameter", () => {
@@ -287,6 +302,8 @@ describe("urlUtils.UrlBuilder.path", () => {
     expect(builder.getSegments().length).toBe(2);
     expect(builder.getSegments()[0]).toBe("test");
     expect(builder.getSegments()[1]).toBe("page");
+    builder.setPath();
+    expect(builder.getSegments().length).toBe(0);
   });
 });
 
@@ -363,6 +380,8 @@ describe("urlUtils.UrlBuilder.query", () => {
     } else {
       expect(sort).toBeDefined();
     }
+    builder.setQueryString();
+    expect(builder.getQuery().size).toBe(0);
   });
 
   it.concurrent("should set the correct query value", () => {
