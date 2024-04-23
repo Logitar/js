@@ -1,6 +1,6 @@
 {
   "name": "logitar-js",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Helper functions distributed by Logitar.",
   "keywords": [
     "logitar",
@@ -23,16 +23,11 @@
     "email": "francispion@hotmail.com",
     "url": "https://www.francispion.ca/"
   },
-  "main": "./build/index.js",
-  "module": "./build/index.js",
-  "types": "./build/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./build/index.js",
-      "require": "./build/index.js",
-      "types": "./build/index.d.ts"
-    }
-  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "./dist"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/Logitar/js"
