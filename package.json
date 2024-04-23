@@ -1,6 +1,6 @@
 {
   "name": "logitar-js",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Helper functions distributed by Logitar.",
   "keywords": [
     "logitar",
@@ -32,7 +32,6 @@
     "type": "git",
     "url": "https://github.com/Logitar/js"
   },
-  "type": "module",
   "scripts": {
     "build": "tsc",
     "test": "vitest run --coverage",
