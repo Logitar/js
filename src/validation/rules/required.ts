@@ -1,9 +1,10 @@
 import type { ValidationRule } from "../validator";
+import { isNullOrWhiteSpace } from "../../helpers/stringUtils";
 
 const required: ValidationRule = (value: unknown): boolean => {
   switch (typeof value) {
     case "string":
-      return value.trim().length > 0;
+      return !isNullOrWhiteSpace(value);
     case "number":
       return !isNaN(value);
   }

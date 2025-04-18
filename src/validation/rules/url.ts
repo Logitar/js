@@ -1,16 +1,16 @@
 import type { ValidationRule } from "../validator";
+import { isNullOrWhiteSpace } from "../../helpers/stringUtils";
 
 const url: ValidationRule = (value: unknown): boolean => {
   if (typeof value !== "string") {
     return false;
   }
-  const trimmed: string = value.trim();
-  if (trimmed.length === 0) {
+  if (isNullOrWhiteSpace(value)) {
     return true;
   }
   let url: URL;
   try {
-    url = new URL(trimmed);
+    url = new URL(value.trim());
   } catch (_) {
     return false;
   }

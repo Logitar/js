@@ -5,8 +5,11 @@ import uniqueCharacters from "../uniqueCharacters";
 describe("uniqueCharacters", () => {
   it.concurrent("should return true when the string has enough unique characters", () => {
     expect(uniqueCharacters("test", 3)).toBe(true);
-    expect(uniqueCharacters("   ", 1)).toBe(true);
+    expect(uniqueCharacters("   ", "1")).toBe(true);
     expect(uniqueCharacters("Test123!", 8)).toBe(true);
+    expect(uniqueCharacters("", 0)).toBe(true);
+    expect(uniqueCharacters("", null)).toBe(true);
+    expect(uniqueCharacters("", undefined)).toBe(true);
   });
 
   it.concurrent("should return false when the string does not have enough unique characters", () => {
@@ -23,8 +26,9 @@ describe("uniqueCharacters", () => {
   });
 
   it.concurrent("should return false when the count is not a number", () => {
-    expect(uniqueCharacters("test", "1")).toBe(false);
-    expect(uniqueCharacters("test", null)).toBe(false);
-    expect(uniqueCharacters("test", undefined)).toBe(false);
+    expect(uniqueCharacters("test", NaN)).toBe(false);
+    expect(uniqueCharacters("test", [1, 2, 3])).toBe(false);
+    expect(uniqueCharacters("test", {})).toBe(false);
+    expect(uniqueCharacters("test", "test")).toBe(false);
   });
 });
