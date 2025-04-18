@@ -11,8 +11,14 @@ class Validator {
     this.rules = new Map();
   }
 
+  clearRules(): void {
+    this.rules.clear();
+  }
   hasRule(key: string): boolean {
     return this.rules.has(key);
+  }
+  listRules(): string[] {
+    return [...this.rules.keys()];
   }
   removeRule(key: string): void {
     this.rules.delete(key);

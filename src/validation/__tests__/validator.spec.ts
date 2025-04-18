@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 
 import Validator from "../validator";
 import required from "../rules/required";
+import uniqueCharacters from "../rules/uniqueCharacters";
 
 describe("Validator", () => {
   it.concurrent("should add a validation rule", () => {
@@ -44,5 +45,19 @@ describe("Validator", () => {
     const result = validator.validate("   ", { required: true });
     expect(result.isValid).toBe(false);
     expect(result.errors).toEqual(["required"]);
+  });
+
+  it.concurrent("should clear all validation rules", () => {
+    const validator = new Validator();
+    validator.setRule("required", required);
+    validator.clearRules();
+    expect(validator.hasRule("required")).toBe(false);
+  });
+
+  it.concurrent("should list all validation rules", () => {
+    const validator = new Validator();
+    validator.setRule("required", required);
+    validator.setRule("uniqueCharacters", uniqueCharacters);
+    expect(validator.listRules()).toEqual(["required", "uniqueCharacters"]);
   });
 });
