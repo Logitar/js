@@ -1,17 +1,24 @@
-import type { ValidationRule } from "..";
+import type { ValidationRule, ValidationSeverity } from "..";
 import { isNullOrWhiteSpace } from "../../helpers/stringUtils";
 
-const required: ValidationRule = (value: unknown): boolean => {
+const required: ValidationRule = (value: unknown): ValidationSeverity => {
+  let isValid: boolean = false;
   switch (typeof value) {
     case "number":
-      return !isNaN(value) && value !== 0;
+      isValid = !isNaN(value) && value !== 0;
+      break;
     case "string":
-      return !isNullOrWhiteSpace(value);
+      isValid = !isNullOrWhiteSpace(value);
+      break;
+    default:
+      if (Array.isArray(value)) {
+        isValid = value.length > 0;
+      } else {
+        isValid = Boolean(value);
+      }
+      break;
   }
-  if (Array.isArray(value)) {
-    return value.length > 0;
-  }
-  return Boolean(value);
+  return isValid ? "information" : "error";
 };
 
 export default required;

@@ -1,18 +1,24 @@
-export type ValidationRule = (value: unknown) => boolean;
+export type ValidationRule = (value: unknown) => boolean | ValidationSeverity;
 
 export type ValidationRuleKey = string;
 
 export type ValidationResult = {
   isValid: boolean;
-  rules: Record<ValidationRuleKey, boolean>;
+  rules: Record<ValidationRuleKey, ValidationSeverity>;
 };
 
 export type ValidationRuleSet = Record<ValidationRuleKey, unknown>;
 
+// https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.logging.loglevel?view=net-9.0-pp
+export type ValidationSeverity = "trace" | "debug" | "information" | "warning" | "error" | "critical";
+
 class Validator {
   private readonly rules: Map<ValidationRuleKey, ValidationRule> = new Map();
+  private readonly treatWarningsAsErrors: boolean;
 
-  constructor() {}
+  constructor(treatWarningsAsErrors?: boolean) {
+    this.treatWarningsAsErrors = treatWarningsAsErrors ?? false;
+  }
 
   clearRules(): void {
     this.rules.clear();
@@ -35,7 +41,7 @@ class Validator {
 
   validate(value: unknown, rules: ValidationRuleSet): ValidationResult {
     let errors: number = 0;
-    const results: Record<ValidationRuleKey, boolean> = {};
+    const results: Record<ValidationRuleKey, ValidationSeverity> = {};
 
     const missingRules: string[] = [];
     for (const rule in rules) {
@@ -45,11 +51,34 @@ class Validator {
         continue;
       }
 
-      const outcome: boolean = validationRule(value);
-      if (!outcome) {
-        errors++;
+      const outcome: boolean | ValidationSeverity = validationRule(value);
+      switch (outcome) {
+        case "trace":
+        case "debug":
+        case "information":
+          results[rule] = outcome;
+          break;
+        case "warning":
+          results[rule] = outcome;
+          if (this.treatWarningsAsErrors) {
+            errors++;
+          }
+          break;
+        case "error":
+        case "critical":
+          results[rule] = outcome;
+          errors++;
+          break;
+        case false:
+          results[rule] = "error";
+          errors++;
+          break;
+        case true:
+          results[rule] = "information";
+          break;
+        default:
+          throw new Error("not_implemented"); // TODO(fpion): implement
       }
-      results[rule] = outcome;
     }
 
     return {
