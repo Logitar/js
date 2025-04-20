@@ -2,6 +2,11 @@ export type ValidationRule = (value: unknown) => boolean;
 
 export type ValidationRuleKey = string;
 
+export type ValidationResult = {
+  isValid: boolean;
+  rules: Record<ValidationRuleKey, boolean>;
+};
+
 export type ValidationRuleSet = Record<ValidationRuleKey, unknown>;
 
 class Validator {
@@ -28,8 +33,9 @@ class Validator {
     this.rules.set(key, rule);
   }
 
-  validate(value: unknown, rules: ValidationRuleSet): boolean {
+  validate(value: unknown, rules: ValidationRuleSet): ValidationResult {
     let errors: number = 0;
+    const results: Record<ValidationRuleKey, boolean> = {};
 
     const missingRules: string[] = [];
     for (const rule in rules) {
@@ -43,9 +49,13 @@ class Validator {
       if (!outcome) {
         errors++;
       }
+      results[rule] = outcome;
     }
 
-    return errors === 0;
+    return {
+      isValid: errors === 0,
+      rules: results,
+    };
   }
 }
 export default Validator;
