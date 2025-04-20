@@ -1,11 +1,19 @@
-export type ValidationRule = (value: unknown) => boolean | ValidationSeverity;
+export type RuleExecutionOutcome = {
+  severity: ValidationSeverity;
+};
 
-export type ValidationRuleKey = string;
+export type RuleExecutionResult = {
+  severity: ValidationSeverity;
+};
 
 export type ValidationResult = {
   isValid: boolean;
-  rules: Record<ValidationRuleKey, ValidationSeverity>;
+  rules: Record<ValidationRuleKey, RuleExecutionResult>;
 };
+
+export type ValidationRule = (value: unknown) => boolean | ValidationSeverity | RuleExecutionOutcome;
+
+export type ValidationRuleKey = string;
 
 export type ValidationRuleSet = Record<ValidationRuleKey, unknown>;
 
@@ -41,7 +49,7 @@ class Validator {
 
   validate(value: unknown, rules: ValidationRuleSet): ValidationResult {
     let errors: number = 0;
-    const results: Record<ValidationRuleKey, ValidationSeverity> = {};
+    const results: Record<ValidationRuleKey, RuleExecutionResult> = {};
 
     const missingRules: string[] = [];
     for (const rule in rules) {
@@ -51,40 +59,40 @@ class Validator {
         continue;
       }
 
-      const outcome: boolean | ValidationSeverity = validationRule(value);
-      switch (outcome) {
-        case "trace":
-        case "debug":
-        case "information":
-          results[rule] = outcome;
+      const result: RuleExecutionResult = {
+        severity: "error",
+      };
+      const outcome: boolean | ValidationSeverity | RuleExecutionOutcome = validationRule(value);
+      switch (typeof outcome) {
+        case "boolean":
+          result.severity = Boolean(outcome) ? "information" : "error";
           break;
+        case "string":
+          result.severity = outcome;
+          break;
+        default:
+          result.severity = outcome.severity;
+          break;
+      }
+      switch (result.severity) {
         case "warning":
-          results[rule] = outcome;
           if (this.treatWarningsAsErrors) {
             errors++;
           }
           break;
         case "error":
         case "critical":
-          results[rule] = outcome;
           errors++;
           break;
-        case false:
-          results[rule] = "error";
-          errors++;
-          break;
-        case true:
-          results[rule] = "information";
-          break;
-        default:
-          throw new Error("not_implemented"); // TODO(fpion): implement
       }
+      results[rule] = result;
     }
 
-    return {
+    const result: ValidationResult = {
       isValid: errors === 0,
       rules: results,
     };
+    return result;
   }
 }
 export default Validator;

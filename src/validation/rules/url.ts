@@ -1,6 +1,6 @@
-import type { ValidationRule, ValidationSeverity } from "..";
+import type { RuleExecutionOutcome, ValidationRule } from "..";
 
-const url: ValidationRule = (value: unknown): ValidationSeverity => {
+const url: ValidationRule = (value: unknown): RuleExecutionOutcome => {
   let isValid: boolean = false;
   const trimmed = typeof value === "string" ? value.trim() : "";
   if (trimmed) {
@@ -10,7 +10,7 @@ const url: ValidationRule = (value: unknown): ValidationSeverity => {
       isValid = url.protocol === "http:" || url.protocol === "https:";
     } catch (_) {}
   }
-  return isValid ? "information" : "error";
+  return { severity: isValid ? "information" : "error" };
 };
 
 export default url;

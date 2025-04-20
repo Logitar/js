@@ -1,7 +1,7 @@
-import type { ValidationRule, ValidationSeverity } from "..";
+import type { RuleExecutionOutcome, ValidationRule } from "..";
 import { isNullOrWhiteSpace } from "../../helpers/stringUtils";
 
-const required: ValidationRule = (value: unknown): ValidationSeverity => {
+const required: ValidationRule = (value: unknown): RuleExecutionOutcome => {
   let isValid: boolean = false;
   switch (typeof value) {
     case "number":
@@ -18,7 +18,7 @@ const required: ValidationRule = (value: unknown): ValidationSeverity => {
       }
       break;
   }
-  return isValid ? "information" : "error";
+  return { severity: isValid ? "information" : "error" };
 };
 
 export default required;
