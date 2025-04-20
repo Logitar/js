@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Nothing yet.
 
+## [1.0.1] - 2025-04-20
+
+### Changed
+
+- Upgraded NPM packages.
+
 ## [1.0.0] - 2024-04-23
 
 Official release.
@@ -57,7 +63,8 @@ Official release.
 
 - Helper functions for arrays, Dates, objects, parsing, strings and URLs.
 
-[unreleased]: https://github.com/Logitar/js/compare/v1.0.0...HEAD
+[unreleased]: https://github.com/Logitar/js/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/Logitar/js/compare/v1.0.1...v1.0.1
 [1.0.0]: https://github.com/Logitar/js/compare/v0.5.0...v1.0.0
 [0.5.0]: https://github.com/Logitar/js/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Logitar/js/compare/v0.3.0...v0.4.0
