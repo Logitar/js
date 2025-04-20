@@ -1,55 +1,36 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, test } from "vitest";
 
 import required from "../required";
+import type { RuleExecutionOutcome } from "../../validator";
 
 describe("required", () => {
-  it.concurrent("should return true for a non-empty string", () => {
-    expect(required("Hello, world!")).toBe(true);
+  test.each(["", "   "])("should return invalid when the value is an empty string", (value) => {
+    const outcome = required(value) as RuleExecutionOutcome;
+    expect(outcome.severity).toBe("error");
+    expect(outcome.message).toBe("{{field}} cannot be empty.");
   });
 
-  it.concurrent("should return false for an empty string", () => {
-    expect(required("")).toBe(false);
+  test.each([0, 0.0, NaN])("should return invalid for an invalid number or 0.", (value) => {
+    const outcome = required(value) as RuleExecutionOutcome;
+    expect(outcome.severity).toBe("error");
+    expect(outcome.message).toBe("{{field}} must be a number different from 0.");
   });
 
-  it.concurrent("should return false for whitespace-only strings", () => {
-    expect(required("    ")).toBe(false);
+  it.concurrent("should return invalid for an empty array", () => {
+    const outcome = required([]) as RuleExecutionOutcome;
+    expect(outcome.severity).toBe("error");
+    expect(outcome.message).toBe("{{field}} cannot be empty.");
   });
 
-  it.concurrent("should return false for a null value", () => {
-    expect(required(null)).toBe(false);
+  test.each([0n, false, null, undefined])("should return invalid for a falsy value", (value) => {
+    const outcome = required(value) as RuleExecutionOutcome;
+    expect(outcome.severity).toBe("error");
+    expect(outcome.message).toBe("{{field}} is required.");
   });
 
-  it.concurrent("should return false for an undefined value", () => {
-    expect(required(undefined)).toBe(false);
-  });
-
-  it.concurrent("should return true for numeric values", () => {
-    expect(required(0)).toBe(true);
-    expect(required(-1)).toBe(true);
-  });
-
-  it.concurrent("should return true for true", () => {
-    expect(required(true)).toBe(true);
-  });
-
-  it.concurrent("should return false for false", () => {
-    expect(required(false)).toBe(false);
-  });
-
-  it.concurrent("should return true for object values", () => {
-    expect(required({})).toBe(true);
-    expect(required({ key: "value" })).toBe(true);
-  });
-
-  it.concurrent("should return false for invalid numbers", () => {
-    expect(required(NaN)).toBe(false);
-  });
-
-  it.concurrent("should return false for empty arrays", () => {
-    expect(required([])).toBe(false);
-  });
-
-  it.concurrent("should return true for non-empty arrays", () => {
-    expect(required([1, 2, 3])).toBe(true);
+  test.each(["  hello   ", 1, -1.1, ["not_empty"], {}, new Date()])("should return valid for a valid value", (value) => {
+    const outcome = required(value) as RuleExecutionOutcome;
+    expect(outcome.severity).toBe("information");
+    expect(outcome.message).toBeUndefined();
   });
 });

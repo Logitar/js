@@ -1,17 +1,25 @@
-import type { ValidationRule } from "../validator";
+import type { RuleExecutionOutcome, ValidationRule } from "../validator";
 import { isNullOrWhiteSpace } from "../../helpers/stringUtils";
 
-const required: ValidationRule = (value: unknown): boolean => {
+const required: ValidationRule = (value: unknown): RuleExecutionOutcome => {
   switch (typeof value) {
     case "string":
-      return !isNullOrWhiteSpace(value);
+      if (isNullOrWhiteSpace(value)) {
+        return { severity: "error", message: "{{field}} cannot be empty." };
+      }
+      break;
     case "number":
-      return !isNaN(value);
+      if (isNaN(value) || value === 0) {
+        return { severity: "error", message: "{{field}} must be a number different from 0." };
+      }
+      break;
   }
   if (Array.isArray(value) && value.length === 0) {
-    return false;
+    return { severity: "error", message: "{{field}} cannot be empty." };
+  } else if (!value) {
+    return { severity: "error", message: "{{field}} is required." };
   }
-  return value !== false && value !== null && value !== undefined;
+  return { severity: "information" };
 };
 
 export default required;

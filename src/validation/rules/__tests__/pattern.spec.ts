@@ -1,32 +1,32 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, test } from "vitest";
 
 import rule from "../pattern";
+import type { RuleExecutionOutcome } from "../../validator";
+
 const pattern = /^[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z][ -]?\d[ABCEGHJ-NPRSTV-Z]\d$/;
 
 describe("pattern", () => {
-  it("should return true when the value is a string matching the pattern", () => {
-    expect(rule("H2X3Y2", pattern)).toBe(true);
-    expect(rule("H2X 3Y2", pattern)).toBe(true);
-    expect(rule("H2X-3Y2", pattern)).toBe(true);
+  test.each([123, null, undefined])("should return invalid when the value is not a string", (value) => {
+    const outcome = rule(value, pattern) as RuleExecutionOutcome;
+    expect(outcome.severity).toBe("error");
+    expect(outcome.message).toBe("{{field}} must be a string.");
   });
 
-  it("should return false when the value is a string not matching the pattern", () => {
-    expect(rule("h2x3y2", pattern)).toBe(false);
-    expect(rule("H2X -3Y2", pattern)).toBe(false);
-    expect(rule("H2U 3Y2", pattern)).toBe(false);
+  test.each([123, null, undefined, [], {}])("should return warning when the arguments are not a string, nor a RegExp", (pattern) => {
+    const outcome = rule("H2X3Y2", pattern) as RuleExecutionOutcome;
+    expect(outcome.severity).toBe("warning");
+    expect(outcome.message).toBe("The arguments should be a string or a RegExp.");
   });
 
-  it("should return false when the value is not a string", () => {
-    expect(rule(123, pattern)).toBe(false);
-    expect(rule(null, pattern)).toBe(false);
-    expect(rule(undefined, pattern)).toBe(false);
+  test.each(["h2x3y2", "H2X -3Y2", "H2U 3Y2"])("should return invalid when the value is a string not matching the pattern", (value) => {
+    const outcome = rule(value, pattern) as RuleExecutionOutcome;
+    expect(outcome.severity).toBe("error");
+    expect(outcome.message).toBe("{{field}} must match the pattern {{pattern}}.");
   });
 
-  it("should return false when the pattern is not valid", () => {
-    expect(rule("H2X 3Y2", 123)).toBe(false);
-    expect(rule("H2X 3Y2", null)).toBe(false);
-    expect(rule("H2X 3Y2", undefined)).toBe(false);
-    expect(rule("H2X 3Y2", [])).toBe(false);
-    expect(rule("H2X 3Y2", {})).toBe(false);
+  test.each(["H2X3Y2", "H2X 3Y2", "H2X-3Y2"])("should return value when the valid is a string matching the pattern", (value) => {
+    const outcome = rule(value, pattern) as RuleExecutionOutcome;
+    expect(outcome.severity).toBe("information");
+    expect(outcome.message).toBeUndefined();
   });
 });

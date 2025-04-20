@@ -1,27 +1,36 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, test } from "vitest";
 
 import confirm from "../confirm";
+import type { RuleExecutionOutcome } from "../../validator";
 
 describe("confirm", () => {
-  it.concurrent("should return true when value is equal to target", () => {
-    expect(confirm(-1, -1)).toBe(true);
-    expect(confirm(false, false)).toBe(true);
-    expect(confirm("", "")).toBe(true);
-    expect(confirm("   ", "   ")).toBe(true);
-    expect(confirm("hello", "hello")).toBe(true);
-    expect(confirm([], [])).toBe(true);
-    expect(confirm({ key: "value" }, { key: "value" })).toBe(true);
-    expect(confirm(null, null)).toBe(true);
-    expect(confirm(undefined, undefined)).toBe(true);
+  test.each([
+    ["hello", "world"],
+    ["", "   "],
+    [false, true],
+    [-1, 1],
+    [null, undefined],
+    [["1"], [1]],
+    [{ key: "1" }, { key: 1 }],
+  ])("should return invalid when the value does not equal the target", (value, target) => {
+    const outcome = confirm(value, target) as RuleExecutionOutcome;
+    expect(outcome.severity).toBe("error");
+    expect(outcome.message).toBe("{{field}} must be equal to {{confirm}}");
   });
 
-  it.concurrent("should return false when value is not equal to target", () => {
-    expect(confirm("hello", "world")).toBe(false);
-    expect(confirm("", "   ")).toBe(false);
-    expect(confirm(false, true)).toBe(false);
-    expect(confirm(-1, 1)).toBe(false);
-    expect(confirm(null, undefined)).toBe(false);
-    expect(confirm(["1"], [1])).toBe(false);
-    expect(confirm({ key: "1" }, { key: 1 })).toBe(false);
+  test.each([
+    [-1, -1],
+    [false, false],
+    ["", ""],
+    ["   ", "   "],
+    ["hello", "hello"],
+    [[], []],
+    [{ key: "value" }, { key: "value" }],
+    [null, null],
+    [undefined, undefined],
+  ])("should return valid when value equals the target", (value, target) => {
+    const outcome = confirm(value, target) as RuleExecutionOutcome;
+    expect(outcome.severity).toBe("information");
+    expect(outcome.message).toBeUndefined();
   });
 });

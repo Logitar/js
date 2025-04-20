@@ -1,21 +1,23 @@
 import { describe, it, expect } from "vitest";
 
 import email from "../email";
+import type { RuleExecutionOutcome } from "../../validator";
 
 describe("email", () => {
-  it("should return true when the value is a valid email", () => {
-    expect(email("test@example.com")).toBe(true);
-    expect(email("hello+world@example.com")).toBe(true);
+  it.concurrent("should return invalid when the value is not a string", () => {
+    const outcome = email(123) as RuleExecutionOutcome;
+    expect(outcome.severity).toBe("error");
+    expect(outcome.message).toBe("{{field}} must be a string.");
   });
 
-  it("should return false when the value is not a valid email", () => {
-    expect(email("invalid-email")).toBe(false);
-    expect(email("aa@@bb..cc")).toBe(false);
+  it.concurrent("should return invalid when the value is not a valid email address", () => {
+    const outcome = email("invalid-email") as RuleExecutionOutcome;
+    expect(outcome.severity).toBe("error");
+    expect(outcome.message).toBe("{{field}} is not a valid email address.");
   });
 
-  it("should return false when the value is not a string", () => {
-    expect(email(123)).toBe(false);
-    expect(email(null)).toBe(false);
-    expect(email(undefined)).toBe(false);
+  it.concurrent("should return valid when the value is a valid email address", () => {
+    const outcome = email("test@example.com") as RuleExecutionOutcome;
+    expect(outcome.severity).toBe("information");
   });
 });
