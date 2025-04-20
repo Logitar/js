@@ -1,10 +1,14 @@
+import { isNullOrWhiteSpace } from "../helpers/stringUtils";
+
 export type RuleExecutionOutcome = {
   severity: ValidationSeverity;
+  name?: string;
   value?: unknown;
 };
 
 export type RuleExecutionResult = {
   severity: ValidationSeverity;
+  name: string;
   value: unknown;
 };
 
@@ -54,7 +58,7 @@ class Validator {
     this.rules.set(key, rule);
   }
 
-  validate(value: unknown, rules: ValidationRuleSet, options?: ValidationOptions): ValidationResult {
+  validate(name: string, value: unknown, rules: ValidationRuleSet, options?: ValidationOptions): ValidationResult {
     options = options ?? {};
     const treatWarningsAsErrors: boolean = options.treatWarningsAsErrors ?? this.treatWarningsAsErrors;
 
@@ -71,6 +75,7 @@ class Validator {
 
       const result: RuleExecutionResult = {
         severity: "error",
+        name,
         value,
       };
       const outcome: boolean | ValidationSeverity | RuleExecutionOutcome = validationRule(value);
@@ -83,6 +88,9 @@ class Validator {
           break;
         default:
           result.severity = outcome.severity;
+          if (!isNullOrWhiteSpace(outcome.name)) {
+            result.name = outcome.name;
+          }
           if (typeof outcome.value !== "undefined") {
             result.value = outcome.value;
           }
