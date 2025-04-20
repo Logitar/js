@@ -2,14 +2,25 @@ import { isNullOrWhiteSpace } from "../helpers/stringUtils";
 
 export type RuleExecutionOutcome = {
   severity: ValidationSeverity;
+  key?: string;
   name?: string;
   value?: unknown;
 };
 
 export type RuleExecutionResult = {
+  key: string;
   severity: ValidationSeverity;
   name: string;
   value: unknown;
+};
+
+export type RuleConfiguration = {
+  rule: ValidationRule;
+  options: RuleOptions;
+};
+
+export type RuleOptions = {
+  key?: string;
 };
 
 export type ValidationOptions = {
@@ -32,7 +43,7 @@ export type ValidationRuleSet = Record<ValidationRuleKey, unknown>;
 export type ValidationSeverity = "trace" | "debug" | "information" | "warning" | "error" | "critical";
 
 class Validator {
-  private readonly rules: Map<ValidationRuleKey, ValidationRule> = new Map();
+  private readonly rules: Map<ValidationRuleKey, RuleConfiguration> = new Map();
   private readonly treatWarningsAsErrors: boolean;
 
   constructor(treatWarningsAsErrors?: boolean) {
@@ -42,43 +53,46 @@ class Validator {
   clearRules(): void {
     this.rules.clear();
   }
-  getRule(key: ValidationRuleKey): ValidationRule | undefined {
+  getRule(key: ValidationRuleKey): RuleConfiguration | undefined {
     return this.rules.get(key);
   }
   hasRule(key: ValidationRuleKey): boolean {
     return this.rules.has(key);
   }
-  listRules(): [ValidationRuleKey, ValidationRule][] {
+  listRules(): [ValidationRuleKey, RuleConfiguration][] {
     return [...this.rules.entries()];
   }
   removeRule(key: ValidationRuleKey): boolean {
     return this.rules.delete(key);
   }
-  setRule(key: ValidationRuleKey, rule: ValidationRule): void {
-    this.rules.set(key, rule);
+  setRule(key: ValidationRuleKey, rule: ValidationRule, options?: RuleOptions): void {
+    options ??= options;
+    const configuration: RuleConfiguration = { rule, options };
+    this.rules.set(key, configuration);
   }
 
   validate(name: string, value: unknown, rules: ValidationRuleSet, options?: ValidationOptions): ValidationResult {
-    options = options ?? {};
+    options ??= {};
     const treatWarningsAsErrors: boolean = options.treatWarningsAsErrors ?? this.treatWarningsAsErrors;
 
     let errors: number = 0;
     const results: Record<ValidationRuleKey, RuleExecutionResult> = {};
 
     const missingRules: string[] = [];
-    for (const rule in rules) {
-      const validationRule: ValidationRule | undefined = this.rules.get(rule);
-      if (!validationRule) {
-        missingRules.push(rule);
+    for (const key in rules) {
+      const configuration: RuleConfiguration | undefined = this.rules.get(key);
+      if (!configuration) {
+        missingRules.push(key);
         continue;
       }
 
       const result: RuleExecutionResult = {
+        key,
         severity: "error",
         name,
         value,
       };
-      const outcome: boolean | ValidationSeverity | RuleExecutionOutcome = validationRule(value);
+      const outcome: boolean | ValidationSeverity | RuleExecutionOutcome = configuration.rule(value);
       switch (typeof outcome) {
         case "boolean":
           result.severity = Boolean(outcome) ? "information" : "error";
@@ -88,6 +102,11 @@ class Validator {
           break;
         default:
           result.severity = outcome.severity;
+          if (!isNullOrWhiteSpace(configuration.options.key)) {
+            result.key = configuration.options.key;
+          } else if (!isNullOrWhiteSpace(outcome.key)) {
+            result.key = outcome.key;
+          }
           if (!isNullOrWhiteSpace(outcome.name)) {
             result.name = outcome.name;
           }
@@ -107,7 +126,7 @@ class Validator {
           errors++;
           break;
       }
-      results[rule] = result;
+      results[key] = result;
     }
 
     const result: ValidationResult = {
