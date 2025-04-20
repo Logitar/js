@@ -1,9 +1,11 @@
 export type RuleExecutionOutcome = {
   severity: ValidationSeverity;
+  value?: unknown;
 };
 
 export type RuleExecutionResult = {
   severity: ValidationSeverity;
+  value: unknown;
 };
 
 export type ValidationOptions = {
@@ -69,6 +71,7 @@ class Validator {
 
       const result: RuleExecutionResult = {
         severity: "error",
+        value,
       };
       const outcome: boolean | ValidationSeverity | RuleExecutionOutcome = validationRule(value);
       switch (typeof outcome) {
@@ -80,6 +83,9 @@ class Validator {
           break;
         default:
           result.severity = outcome.severity;
+          if (typeof outcome.value !== "undefined") {
+            result.value = outcome.value;
+          }
           break;
       }
       switch (result.severity) {
