@@ -86,6 +86,11 @@ class Validator {
         continue;
       }
 
+      const args: unknown = rules[key];
+      if (!args) {
+        continue;
+      }
+
       const result: RuleExecutionResult = {
         key,
         severity: "error",
