@@ -6,6 +6,11 @@ export type RuleExecutionResult = {
   severity: ValidationSeverity;
 };
 
+export type ValidationOptions = {
+  treatWarningsAsErrors?: boolean;
+  throwOnFailure?: boolean;
+};
+
 export type ValidationResult = {
   isValid: boolean;
   rules: Record<ValidationRuleKey, RuleExecutionResult>;
@@ -47,7 +52,10 @@ class Validator {
     this.rules.set(key, rule);
   }
 
-  validate(value: unknown, rules: ValidationRuleSet): ValidationResult {
+  validate(value: unknown, rules: ValidationRuleSet, options?: ValidationOptions): ValidationResult {
+    options = options ?? {};
+    const treatWarningsAsErrors: boolean = options.treatWarningsAsErrors ?? this.treatWarningsAsErrors;
+
     let errors: number = 0;
     const results: Record<ValidationRuleKey, RuleExecutionResult> = {};
 
@@ -76,7 +84,7 @@ class Validator {
       }
       switch (result.severity) {
         case "warning":
-          if (this.treatWarningsAsErrors) {
+          if (treatWarningsAsErrors) {
             errors++;
           }
           break;
@@ -92,6 +100,9 @@ class Validator {
       isValid: errors === 0,
       rules: results,
     };
+    if (!result.isValid && options.throwOnFailure) {
+      throw result;
+    }
     return result;
   }
 }
