@@ -12,7 +12,7 @@ const pattern: ValidationRule = (value: unknown, args: unknown): RuleExecutionOu
   } else if (typeof args !== "string" && !(args instanceof RegExp)) {
     return { severity: "warning", message: "The arguments should be a regular expression." };
   } else if (!new RegExp(args).test(value)) {
-    return { severity: "error", message: "{{field}} must match the pattern {{pattern}}." };
+    return { severity: "error", message: "{{name}} must match the pattern {{pattern}}." };
   }
   return { severity: "information" };
 };

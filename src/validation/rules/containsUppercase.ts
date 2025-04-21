@@ -13,13 +13,13 @@ const containsUppercase: ValidationRule = (value: unknown, args: unknown): RuleE
   }
 
   const requiredUppercase: number = Number(args);
-  if (!isNaN(requiredUppercase) || requiredUppercase <= 0) {
+  if (isNaN(requiredUppercase) || requiredUppercase <= 0) {
     return { severity: "warning", message: "The arguments should be a positive number." };
   }
 
   const uppercase: number = [...value].filter((c) => isLetter(c) && c.toUpperCase() === c).length;
   if (uppercase < requiredUppercase) {
-    return { severity: "error", message: "{{name}} must contain at least {{containsUppercase}} Uppercase letter(s)." };
+    return { severity: "error", message: "{{name}} must contain at least {{containsUppercase}} uppercase letter(s)." };
   }
 
   return { severity: "information" };

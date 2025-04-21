@@ -13,7 +13,7 @@ const containsLowercase: ValidationRule = (value: unknown, args: unknown): RuleE
   }
 
   const requiredLowercase: number = Number(args);
-  if (!isNaN(requiredLowercase) || requiredLowercase <= 0) {
+  if (isNaN(requiredLowercase) || requiredLowercase <= 0) {
     return { severity: "warning", message: "The arguments should be a positive number." };
   }
 

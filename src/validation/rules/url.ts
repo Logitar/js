@@ -2,6 +2,15 @@ import type { RuleExecutionOutcome, ValidationRule } from "../types";
 import { isNullOrWhiteSpace, trimEnd } from "../../helpers/stringUtils";
 
 /**
+ * Format a protocol string to be used in a set.
+ * @param protocol The protocol to format.
+ * @returns The formatted protocol.
+ */
+function format(protocol: string): string {
+  return trimEnd(protocol.trim().toLowerCase(), ":");
+}
+
+/**
  * A validation rule that checks if a string is a valid URL.
  * @param value The value to validate.
  * @param args The allowed protocols.
@@ -26,7 +35,7 @@ const url: ValidationRule = (value: unknown, args: unknown): RuleExecutionOutcom
     if (values.length === 0) {
       isArgsValid = false;
     } else {
-      values.forEach((value) => protocols.add(trimEnd(value.trim().toLowerCase(), ":")));
+      values.forEach((value) => protocols.add(format(value)));
     }
   }
 
@@ -37,14 +46,15 @@ const url: ValidationRule = (value: unknown, args: unknown): RuleExecutionOutcom
     return { severity: "error", message: "{{name}} must be a valid URL." };
   }
 
-  if (!protocols.has(url.protocol.toLowerCase())) {
+  if (!protocols.has(format(url.protocol))) {
     return { severity: "error", message: `{{name}} must be an URL with one of the following protocols: ${[...protocols].join(", ")}.` };
   }
 
   if (!isArgsValid) {
     return {
       severity: "warning",
-      message: "The arguments must be undefined, or a string containing the allowed protocols separated by commas, semicolons or pipes.",
+      message:
+        "The arguments must be undefined, a string containing the allowed protocols separated by commas, semicolons or pipes, or an array of allowed protocols.",
     };
   }
 

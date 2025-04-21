@@ -13,7 +13,7 @@ const containsNonAlphanumeric: ValidationRule = (value: unknown, args: unknown):
   }
 
   const requiredNonAlphanumeric: number = Number(args);
-  if (!isNaN(requiredNonAlphanumeric) || requiredNonAlphanumeric <= 0) {
+  if (isNaN(requiredNonAlphanumeric) || requiredNonAlphanumeric <= 0) {
     return { severity: "warning", message: "The arguments should be a positive number." };
   }
 

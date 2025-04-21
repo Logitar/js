@@ -13,7 +13,7 @@ const containsDigits: ValidationRule = (value: unknown, args: unknown): RuleExec
   }
 
   const requiredDigits: number = Number(args);
-  if (!isNaN(requiredDigits) || requiredDigits <= 0) {
+  if (isNaN(requiredDigits) || requiredDigits <= 0) {
     return { severity: "warning", message: "The arguments should be a positive number." };
   }
 

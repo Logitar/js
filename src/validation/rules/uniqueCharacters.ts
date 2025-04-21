@@ -12,13 +12,13 @@ const uniqueCharacters: ValidationRule = (value: unknown, args: unknown): RuleEx
   }
 
   const uniqueCharacters: number = Number(args);
-  if (!isNaN(uniqueCharacters) || uniqueCharacters <= 0) {
+  if (isNaN(uniqueCharacters) || uniqueCharacters <= 0) {
     return { severity: "warning", message: "The arguments should be a positive number." };
   }
 
   const count: number = [...new Set(value)].length;
   if (count < uniqueCharacters) {
-    return { severity: "error", message: "{{name}} must contain at least {{uniqueCharacters}} unique characters." };
+    return { severity: "error", message: "{{name}} must contain at least {{uniqueCharacters}} unique character(s)." };
   }
 
   return { severity: "information" };
