@@ -20,7 +20,7 @@ const email: ValidationRule = (value: unknown, args: unknown): RuleExecutionOutc
     regex = new RegExp(args);
   } else {
     regex = new RegExp(defaultRegex);
-    if (typeof args !== "undefined") {
+    if (typeof args !== "undefined" && typeof args !== "boolean") {
       isArgsValid = false;
     }
   }

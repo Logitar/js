@@ -39,4 +39,16 @@ describe("maximumValue", () => {
     expect(outcome.severity).toBe("information");
     expect(outcome.message).toBeUndefined();
   });
+
+  it.concurrent("should return warning when the values could not be compared", () => {
+    const a = {
+      valueOf: function () {
+        throw new Error("Error during valueOf");
+      },
+    };
+    const b = 5;
+    const outcome = maximumValue(a, b) as RuleExecutionOutcome;
+    expect(outcome.severity).toBe("warning");
+    expect(outcome.message).toBe("Could not compare {{name}} ({{value}} | object) with args ({{maximumValue}} | number).");
+  });
 });

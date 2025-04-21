@@ -10,7 +10,7 @@ describe("email", () => {
     expect(outcome.message).toBe("{{name}} must be a string.");
   });
 
-  test.each([null, {}, [], true, 0, 0n])("should return warning when the args are not valid", (args) => {
+  test.each([null, {}, [], 0, 0n])("should return warning when the args are not valid", (args) => {
     const outcome = email("test@example.com", args) as RuleExecutionOutcome;
     expect(outcome.severity).toBe("warning");
     expect(outcome.message).toBe("The arguments must be undefined, or a valid email address validation regular expression.");
@@ -24,6 +24,12 @@ describe("email", () => {
 
   it.concurrent("should return valid when the value is a valid email address", () => {
     const outcome = email("test@example.com") as RuleExecutionOutcome;
+    expect(outcome.severity).toBe("information");
+    expect(outcome.message).toBeUndefined();
+  });
+
+  it.concurrent("should return valid when the value matches the arguments pattern", () => {
+    const outcome = email("test@example.com", /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i) as RuleExecutionOutcome;
     expect(outcome.severity).toBe("information");
     expect(outcome.message).toBeUndefined();
   });
