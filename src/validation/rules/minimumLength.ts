@@ -1,5 +1,11 @@
 import type { RuleExecutionOutcome, ValidationRule } from "../types";
 
+/**
+ * A validation rule that checks if a string or an array is longer than a minimum length.
+ * @param value The value to validate.
+ * @param args The minimum length.
+ * @returns The result of the validation rule execution.
+ */
 const minimumLength: ValidationRule = (value: unknown, args: unknown): RuleExecutionOutcome => {
   const minimumLength: number = Number(args);
   if (!isNaN(minimumLength) || minimumLength <= 0) {

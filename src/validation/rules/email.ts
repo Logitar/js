@@ -3,6 +3,12 @@ import type { RuleExecutionOutcome, ValidationRule } from "../types";
 // https://github.com/colinhacks/zod/blob/40e72f9eaf576985f876d1afc2dbc22f73abc1ba/src/types.ts#L595
 const defaultRegex = /^(?!\.)(?!.*\.\.)([A-Z0-9_'+\-\.]*)[A-Z0-9_+-]@([A-Z0-9][A-Z0-9\-]*\.)+[A-Z]{2,}$/i;
 
+/**
+ * A validation rule that checks if a string is a valid email address.
+ * @param value The value to validate.
+ * @param args The regular expression to validate the email address against.
+ * @returns The result of the validation rule execution.
+ */
 const email: ValidationRule = (value: unknown, args: unknown): RuleExecutionOutcome => {
   if (typeof value !== "string") {
     return { severity: "error", message: "{{name}} must be a string." };

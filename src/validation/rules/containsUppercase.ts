@@ -1,6 +1,12 @@
 import type { RuleExecutionOutcome, ValidationRule } from "../types";
 import { isLetter } from "../../helpers/stringUtils";
 
+/**
+ * A validation rule that checks if a string contains a minimum number of uppercase letters.
+ * @param value The value to validate.
+ * @param args The minimum number of uppercase letters.
+ * @returns The result of the validation rule execution.
+ */
 const containsUppercase: ValidationRule = (value: unknown, args: unknown): RuleExecutionOutcome => {
   if (typeof value !== "string") {
     return { severity: "error", message: "{{name}} must be a string." };

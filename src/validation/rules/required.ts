@@ -1,6 +1,11 @@
 import type { RuleExecutionOutcome, ValidationRule } from "../types";
 import { isNullOrWhiteSpace } from "../../helpers/stringUtils";
 
+/**
+ * A validation rule that checks if a required value is provided.
+ * @param value The value to validate.
+ * @returns The result of the validation rule execution.
+ */
 const required: ValidationRule = (value: unknown): RuleExecutionOutcome => {
   switch (typeof value) {
     case "number":

@@ -1,6 +1,12 @@
 import type { RuleExecutionOutcome, ValidationRule } from "../types";
 import { isLetterOrDigit } from "../../helpers/stringUtils";
 
+/**
+ * A validation rule that checks if a string contains a minimum number of non-alphanumeric characters.
+ * @param value The value to validate.
+ * @param args The minimum number of non-alphanumeric characters.
+ * @returns The result of the validation rule execution.
+ */
 const containsNonAlphanumeric: ValidationRule = (value: unknown, args: unknown): RuleExecutionOutcome => {
   if (typeof value !== "string") {
     return { severity: "error", message: "{{name}} must be a string." };
