@@ -1,14 +1,30 @@
 import type { RuleExecutionOutcome, ValidationRule } from "../types";
 
 // https://github.com/colinhacks/zod/blob/40e72f9eaf576985f876d1afc2dbc22f73abc1ba/src/types.ts#L595
-const regex = /^(?!\.)(?!.*\.\.)([A-Z0-9_'+\-\.]*)[A-Z0-9_+-]@([A-Z0-9][A-Z0-9\-]*\.)+[A-Z]{2,}$/i; // TODO(fpion): override from args
+const defaultRegex = /^(?!\.)(?!.*\.\.)([A-Z0-9_'+\-\.]*)[A-Z0-9_+-]@([A-Z0-9][A-Z0-9\-]*\.)+[A-Z]{2,}$/i;
 
-const email: ValidationRule = (value: unknown): RuleExecutionOutcome => {
+const email: ValidationRule = (value: unknown, args: unknown): RuleExecutionOutcome => {
   if (typeof value !== "string") {
     return { severity: "error", message: "{{name}} must be a string." };
-  } else if (!regex.test(value)) {
-    return { severity: "error", message: "{{name}} must be a valid email address." };
   }
+
+  let isArgsValid: boolean = true;
+  let regex: RegExp;
+  if (typeof args === "string" || args instanceof RegExp) {
+    regex = new RegExp(args);
+  } else {
+    regex = new RegExp(defaultRegex);
+    if (typeof args !== "undefined") {
+      isArgsValid = false;
+    }
+  }
+
+  if (!regex.test(value)) {
+    return { severity: "error", message: "{{name}} must be a valid email address." };
+  } else if (!isArgsValid) {
+    return { severity: "warning", message: "The arguments must be undefined, or a valid email address validation regular expression." };
+  }
+
   return { severity: "information" };
 };
 

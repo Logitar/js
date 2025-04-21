@@ -41,7 +41,7 @@ export type ValidationResult = {
   rules: Record<ValidationRuleKey, RuleExecutionResult>;
 };
 
-export type ValidationRule = (value: unknown) => boolean | ValidationSeverity | RuleExecutionOutcome;
+export type ValidationRule = (value: unknown, args?: unknown) => boolean | ValidationSeverity | RuleExecutionOutcome;
 
 export type ValidationRuleKey = string;
 

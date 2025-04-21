@@ -115,7 +115,7 @@ class Validator {
         value,
       };
 
-      const outcome: boolean | ValidationSeverity | RuleExecutionOutcome = configuration.rule(value);
+      const outcome: boolean | ValidationSeverity | RuleExecutionOutcome = configuration.rule(value, args);
       switch (typeof outcome) {
         case "boolean":
           result.severity = Boolean(outcome) ? "information" : "error";
