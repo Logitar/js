@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Nothing yet.
 
+## [1.1.0] - 2025-04-21
+
+### Added
+
+- Implemented validation.
+
 ## [1.0.1] - 2025-04-20
 
 ### Changed
@@ -63,7 +69,8 @@ Official release.
 
 - Helper functions for arrays, Dates, objects, parsing, strings and URLs.
 
-[unreleased]: https://github.com/Logitar/js/compare/v1.0.1...HEAD
+[unreleased]: https://github.com/Logitar/js/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/Logitar/js/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/Logitar/js/compare/v1.0.1...v1.0.1
 [1.0.0]: https://github.com/Logitar/js/compare/v0.5.0...v1.0.0
 [0.5.0]: https://github.com/Logitar/js/compare/v0.4.0...v0.5.0
