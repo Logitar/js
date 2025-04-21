@@ -1,4 +1,4 @@
-import type { RuleExecutionOutcome, ValidationRule } from "..";
+import type { RuleExecutionOutcome, ValidationRule } from "../types";
 import { isNullOrWhiteSpace } from "../../helpers/stringUtils";
 
 const required: ValidationRule = (value: unknown): RuleExecutionOutcome => {

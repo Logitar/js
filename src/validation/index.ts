@@ -1,53 +1,18 @@
+import DefaultMessageFormatter, { MessageFormatter } from "./format";
 import { isNullOrWhiteSpace } from "../helpers/stringUtils";
-
-export type RuleExecutionOutcome = {
-  severity: ValidationSeverity;
-  key?: string;
-  message?: string;
-  placeholders?: Record<string, unknown>;
-  name?: string;
-  value?: unknown;
-};
-
-export type RuleExecutionResult = {
-  key: string;
-  severity: ValidationSeverity;
-  message?: string;
-  placeholders: Record<string, unknown>;
-  name: string;
-  value: unknown;
-};
-
-export type RuleConfiguration = {
-  rule: ValidationRule;
-  options: RuleOptions;
-};
-
-export type RuleOptions = {
-  key?: string;
-  message?: string;
-  placeholders?: Record<string, unknown>;
-};
-
-export type ValidationOptions = {
-  placeholders?: Record<string, unknown>;
-  treatWarningsAsErrors?: boolean;
-  throwOnFailure?: boolean;
-};
-
-export type ValidationResult = {
-  isValid: boolean;
-  rules: Record<ValidationRuleKey, RuleExecutionResult>;
-};
-
-export type ValidationRule = (value: unknown) => boolean | ValidationSeverity | RuleExecutionOutcome;
-
-export type ValidationRuleKey = string;
-
-export type ValidationRuleSet = Record<ValidationRuleKey, unknown>;
-
-// https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.logging.loglevel?view=net-9.0-pp
-export type ValidationSeverity = "trace" | "debug" | "information" | "warning" | "error" | "critical";
+import type {
+  RuleConfiguration,
+  RuleExecutionOutcome,
+  RuleExecutionResult,
+  RuleOptions,
+  ValidationOptions,
+  ValidationResult,
+  ValidationRule,
+  ValidationRuleKey,
+  ValidationRuleSet,
+  ValidationSeverity,
+  ValidatorOptions,
+} from "./types";
 
 function apply(outcome: RuleExecutionOutcome, result: RuleExecutionResult, options: RuleOptions): void {
   // severity
@@ -92,11 +57,14 @@ function fillPlaceholders(result: RuleExecutionResult, outcome?: RuleExecutionOu
 }
 
 class Validator {
+  private readonly messageFormatter: MessageFormatter;
   private readonly rules: Map<ValidationRuleKey, RuleConfiguration> = new Map();
   private readonly treatWarningsAsErrors: boolean;
 
-  constructor(treatWarningsAsErrors?: boolean) {
-    this.treatWarningsAsErrors = treatWarningsAsErrors ?? false;
+  constructor(options?: ValidatorOptions) {
+    options ??= options;
+    this.messageFormatter = options.messageFormatter ?? new DefaultMessageFormatter();
+    this.treatWarningsAsErrors = options.treatWarningsAsErrors ?? false;
   }
 
   clearRules(): void {
@@ -162,7 +130,7 @@ class Validator {
 
       fillPlaceholders(result, typeof outcome === "object" ? outcome : undefined, configuration.options, options);
 
-      // TODO(fpion): format message
+      this.formatMessage(result, options);
 
       if (this.isError(result.severity, options)) {
         errors++;
@@ -179,6 +147,11 @@ class Validator {
       throw result;
     }
     return result;
+  }
+  private formatMessage(result: RuleExecutionResult, options?: ValidationOptions): void {
+    options ??= {};
+    const messageFormatter: MessageFormatter = options.messageFormatter ?? this.messageFormatter;
+    result.message = messageFormatter.format(result.message, result.placeholders);
   }
   private isError(severity: ValidationSeverity, options?: ValidationOptions): boolean {
     options ??= {};

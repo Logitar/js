@@ -1,4 +1,4 @@
-import type { RuleExecutionOutcome, ValidationRule } from "..";
+import type { RuleExecutionOutcome, ValidationRule } from "../types";
 import { isLetterOrDigit, isNullOrEmpty } from "../../helpers/stringUtils";
 
 const slug: ValidationRule = (value: unknown): RuleExecutionOutcome => {

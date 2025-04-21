@@ -1,4 +1,4 @@
-import type { RuleExecutionOutcome, ValidationRule } from "..";
+import type { RuleExecutionOutcome, ValidationRule } from "../types";
 import { isDigit, isLetterOrDigit, isNullOrEmpty } from "../../helpers/stringUtils";
 
 const identifier: ValidationRule = (value: unknown): RuleExecutionOutcome => {
