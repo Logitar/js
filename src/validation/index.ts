@@ -33,7 +33,7 @@ function apply(result: RuleExecutionResult, outcome: RuleExecutionOutcome, optio
   // message
   if (!isNullOrWhiteSpace(options.message)) {
     result.message = options.message;
-  } else if (!isNullOrWhiteSpace(options.message)) {
+  } else if (!isNullOrWhiteSpace(outcome.message)) {
     result.message = outcome.message;
   }
   // name
@@ -98,7 +98,7 @@ class Validator {
    * @param options The options of the validator.
    */
   constructor(options?: ValidatorOptions) {
-    options ??= options;
+    options ??= {};
     this.messageFormatter = options.messageFormatter ?? new DefaultMessageFormatter();
     this.rules = new Map();
     this.throwOnFailure = options.throwOnFailure ?? false;
@@ -154,7 +154,7 @@ class Validator {
    * @param options The options of the rule.
    */
   setRule(key: ValidationRuleKey, rule: ValidationRule, options?: RuleOptions): void {
-    options ??= options;
+    options ??= {};
     const configuration: RuleConfiguration = { rule, options };
     this.rules.set(key, configuration);
   }
@@ -219,6 +219,10 @@ class Validator {
       results[key] = result;
     }
 
+    if (missingRules.length > 0) {
+      throw new Error(`The following rules are not registered: ${missingRules.join(", ")}`);
+    }
+
     const result: ValidationResult = {
       isValid: errors === 0,
       rules: results,
@@ -238,7 +242,9 @@ class Validator {
   private formatMessage(result: RuleExecutionResult, options?: ValidationOptions): void {
     options ??= {};
     const messageFormatter: MessageFormatter = options.messageFormatter ?? this.messageFormatter;
-    result.message = messageFormatter.format(result.message, result.placeholders);
+    if (typeof result.message === "string") {
+      result.message = messageFormatter.format(result.message, result.placeholders);
+    }
   }
 
   /**
