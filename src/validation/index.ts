@@ -4,6 +4,7 @@ export type RuleExecutionOutcome = {
   severity: ValidationSeverity;
   key?: string;
   message?: string;
+  placeholders?: Record<string, unknown>;
   name?: string;
   value?: unknown;
 };
@@ -12,6 +13,7 @@ export type RuleExecutionResult = {
   key: string;
   severity: ValidationSeverity;
   message?: string;
+  placeholders: Record<string, unknown>;
   name: string;
   value: unknown;
 };
@@ -24,9 +26,11 @@ export type RuleConfiguration = {
 export type RuleOptions = {
   key?: string;
   message?: string;
+  placeholders?: Record<string, unknown>;
 };
 
 export type ValidationOptions = {
+  placeholders?: Record<string, unknown>;
   treatWarningsAsErrors?: boolean;
   throwOnFailure?: boolean;
 };
@@ -44,6 +48,48 @@ export type ValidationRuleSet = Record<ValidationRuleKey, unknown>;
 
 // https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.logging.loglevel?view=net-9.0-pp
 export type ValidationSeverity = "trace" | "debug" | "information" | "warning" | "error" | "critical";
+
+function apply(outcome: RuleExecutionOutcome, result: RuleExecutionResult, options: RuleOptions): void {
+  // severity
+  result.severity = outcome.severity;
+  // key
+  if (!isNullOrWhiteSpace(options.key)) {
+    result.key = options.key;
+  } else if (!isNullOrWhiteSpace(outcome.key)) {
+    result.key = outcome.key;
+  }
+  // message
+  if (!isNullOrWhiteSpace(options.message)) {
+    result.message = options.message;
+  } else if (!isNullOrWhiteSpace(options.message)) {
+    result.message = outcome.message;
+  }
+  // name
+  if (!isNullOrWhiteSpace(outcome.name)) {
+    result.name = outcome.name;
+  }
+  // value
+  if (typeof outcome.value !== "undefined") {
+    result.value = outcome.value;
+  }
+}
+
+function fillPlaceholders(result: RuleExecutionResult, outcome?: RuleExecutionOutcome, rule?: RuleOptions, validation?: ValidationOptions): void {
+  result.placeholders.key = result.key;
+  result.placeholders.name = result.name;
+  result.placeholders.value = result.value;
+  result.placeholders.severity = result.severity;
+
+  if (outcome && outcome.placeholders) {
+    result.placeholders = { ...result.placeholders, ...outcome.placeholders };
+  }
+  if (rule && rule.placeholders) {
+    result.placeholders = { ...result.placeholders, ...rule.placeholders };
+  }
+  if (validation && validation.placeholders) {
+    result.placeholders = { ...result.placeholders, ...validation.placeholders };
+  }
+}
 
 class Validator {
   private readonly rules: Map<ValidationRuleKey, RuleConfiguration> = new Map();
@@ -76,7 +122,6 @@ class Validator {
 
   validate(name: string, value: unknown, rules: ValidationRuleSet, options?: ValidationOptions): ValidationResult {
     options ??= {};
-    const treatWarningsAsErrors: boolean = options.treatWarningsAsErrors ?? this.treatWarningsAsErrors;
 
     let errors: number = 0;
     const results: Record<ValidationRuleKey, RuleExecutionResult> = {};
@@ -97,9 +142,11 @@ class Validator {
       const result: RuleExecutionResult = {
         key,
         severity: "error",
+        placeholders: { [key]: args },
         name,
         value,
       };
+
       const outcome: boolean | ValidationSeverity | RuleExecutionOutcome = configuration.rule(value);
       switch (typeof outcome) {
         case "boolean":
@@ -109,36 +156,18 @@ class Validator {
           result.severity = outcome;
           break;
         default:
-          result.severity = outcome.severity;
-          if (!isNullOrWhiteSpace(configuration.options.key)) {
-            result.key = configuration.options.key;
-          } else if (!isNullOrWhiteSpace(outcome.key)) {
-            result.key = outcome.key;
-          }
-          if (!isNullOrWhiteSpace(configuration.options.message)) {
-            result.message = configuration.options.message;
-          } else if (!isNullOrWhiteSpace(configuration.options.message)) {
-            result.message = outcome.message;
-          }
-          if (!isNullOrWhiteSpace(outcome.name)) {
-            result.name = outcome.name;
-          }
-          if (typeof outcome.value !== "undefined") {
-            result.value = outcome.value;
-          }
+          apply(outcome, result, configuration.options);
           break;
       }
-      switch (result.severity) {
-        case "warning":
-          if (treatWarningsAsErrors) {
-            errors++;
-          }
-          break;
-        case "error":
-        case "critical":
-          errors++;
-          break;
+
+      fillPlaceholders(result, typeof outcome === "object" ? outcome : undefined, configuration.options, options);
+
+      // TODO(fpion): format message
+
+      if (this.isError(result.severity, options)) {
+        errors++;
       }
+
       results[key] = result;
     }
 
@@ -150,6 +179,20 @@ class Validator {
       throw result;
     }
     return result;
+  }
+  private isError(severity: ValidationSeverity, options?: ValidationOptions): boolean {
+    options ??= {};
+    switch (severity) {
+      case "error":
+      case "critical":
+        return true;
+      case "warning":
+        if (options.treatWarningsAsErrors ?? this.treatWarningsAsErrors) {
+          return true;
+        }
+        break;
+    }
+    return false;
   }
 }
 export default Validator;
