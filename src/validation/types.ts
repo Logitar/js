@@ -7,6 +7,7 @@ export type RuleExecutionOutcome = {
   placeholders?: Record<string, unknown>;
   name?: string;
   value?: unknown;
+  custom?: unknown;
 };
 
 export type RuleExecutionResult = {
@@ -16,6 +17,7 @@ export type RuleExecutionResult = {
   placeholders: Record<string, unknown>;
   name: string;
   value: unknown;
+  custom?: unknown;
 };
 
 export type RuleConfiguration = {

@@ -37,6 +37,8 @@ function apply(result: RuleExecutionResult, outcome: RuleExecutionOutcome, optio
   if (typeof outcome.value !== "undefined") {
     result.value = outcome.value;
   }
+  // custom
+  result.custom = outcome.custom;
 }
 
 function fillPlaceholders(result: RuleExecutionResult, outcome?: RuleExecutionOutcome, rule?: RuleOptions, validation?: ValidationOptions): void {
