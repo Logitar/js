@@ -14,7 +14,7 @@ import type {
   ValidatorOptions,
 } from "./types";
 
-function apply(outcome: RuleExecutionOutcome, result: RuleExecutionResult, options: RuleOptions): void {
+function apply(result: RuleExecutionResult, outcome: RuleExecutionOutcome, options: RuleOptions): void {
   // severity
   result.severity = outcome.severity;
   // key
@@ -124,7 +124,7 @@ class Validator {
           result.severity = outcome;
           break;
         default:
-          apply(outcome, result, configuration.options);
+          apply(result, outcome, configuration.options);
           break;
       }
 
