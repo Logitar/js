@@ -1,16 +1,22 @@
 import type { RuleExecutionOutcome, ValidationRule } from "..";
+import { isNullOrWhiteSpace } from "../../helpers/stringUtils";
 
 const url: ValidationRule = (value: unknown): RuleExecutionOutcome => {
-  let isValid: boolean = false;
-  const trimmed = typeof value === "string" ? value.trim() : "";
-  if (trimmed) {
-    let url: URL;
-    try {
-      url = new URL(trimmed);
-      isValid = url.protocol === "http:" || url.protocol === "https:";
-    } catch (_) {}
+  if (typeof value !== "string") {
+    return { severity: "error", message: "{{name}} must be a string." };
+  } else if (isNullOrWhiteSpace(value)) {
+    return { severity: "error", message: "{{name}} cannot be an empty string." };
   }
-  return { severity: isValid ? "information" : "error" };
+  let url: URL;
+  try {
+    url = new URL(value.trim());
+  } catch (_) {
+    return { severity: "error", message: "{{name}} must be a valid URL." };
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    return { severity: "error", message: "{{name}} must be an URL with one of the following schemes: http, https" };
+  }
+  return { severity: "information" };
 };
 
 export default url;

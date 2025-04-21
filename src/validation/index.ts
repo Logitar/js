@@ -3,6 +3,7 @@ import { isNullOrWhiteSpace } from "../helpers/stringUtils";
 export type RuleExecutionOutcome = {
   severity: ValidationSeverity;
   key?: string;
+  message?: string;
   name?: string;
   value?: unknown;
 };
@@ -10,6 +11,7 @@ export type RuleExecutionOutcome = {
 export type RuleExecutionResult = {
   key: string;
   severity: ValidationSeverity;
+  message?: string;
   name: string;
   value: unknown;
 };
@@ -21,6 +23,7 @@ export type RuleConfiguration = {
 
 export type RuleOptions = {
   key?: string;
+  message?: string;
 };
 
 export type ValidationOptions = {
@@ -111,6 +114,11 @@ class Validator {
             result.key = configuration.options.key;
           } else if (!isNullOrWhiteSpace(outcome.key)) {
             result.key = outcome.key;
+          }
+          if (!isNullOrWhiteSpace(configuration.options.message)) {
+            result.message = configuration.options.message;
+          } else if (!isNullOrWhiteSpace(configuration.options.message)) {
+            result.message = outcome.message;
           }
           if (!isNullOrWhiteSpace(outcome.name)) {
             result.name = outcome.name;

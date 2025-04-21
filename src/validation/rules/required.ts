@@ -2,23 +2,28 @@ import type { RuleExecutionOutcome, ValidationRule } from "..";
 import { isNullOrWhiteSpace } from "../../helpers/stringUtils";
 
 const required: ValidationRule = (value: unknown): RuleExecutionOutcome => {
-  let isValid: boolean = false;
   switch (typeof value) {
     case "number":
-      isValid = !isNaN(value) && value !== 0;
+      if (isNaN(value) || value === 0) {
+        return { severity: "error", message: "{{name}} must be a number different from 0." };
+      }
       break;
     case "string":
-      isValid = !isNullOrWhiteSpace(value);
+      if (isNullOrWhiteSpace(value)) {
+        return { severity: "error", message: "{{name}} cannot be an empty string." };
+      }
       break;
     default:
       if (Array.isArray(value)) {
-        isValid = value.length > 0;
-      } else {
-        isValid = Boolean(value);
+        if (value.length === 0) {
+          return { severity: "error", message: "{{name}} cannot be an empty array." };
+        }
+      } else if (!Boolean(value)) {
+        return { severity: "error", message: "{{name}} is required." };
       }
       break;
   }
-  return { severity: isValid ? "information" : "error" };
+  return { severity: "information" };
 };
 
 export default required;
