@@ -31,7 +31,10 @@ export type RuleOptions = {
   placeholders?: Record<string, unknown>;
 };
 
+export type ValidationContext = Record<string, unknown>;
+
 export type ValidationOptions = {
+  context?: ValidationContext;
   messageFormatter?: MessageFormatter;
   placeholders?: Record<string, unknown>;
   treatWarningsAsErrors?: boolean;
@@ -41,9 +44,10 @@ export type ValidationOptions = {
 export type ValidationResult = {
   isValid: boolean;
   rules: Record<ValidationRuleKey, RuleExecutionResult>;
+  context: ValidationContext;
 };
 
-export type ValidationRule = (value: unknown, args?: unknown) => boolean | ValidationSeverity | RuleExecutionOutcome;
+export type ValidationRule = (value: unknown, args?: unknown, context?: ValidationContext) => boolean | ValidationSeverity | RuleExecutionOutcome;
 
 export type ValidationRuleKey = string;
 

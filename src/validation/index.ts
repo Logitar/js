@@ -5,6 +5,7 @@ import type {
   RuleExecutionOutcome,
   RuleExecutionResult,
   RuleOptions,
+  ValidationContext,
   ValidationOptions,
   ValidationResult,
   ValidationRule,
@@ -92,6 +93,7 @@ class Validator {
 
   validate(name: string, value: unknown, rules: ValidationRuleSet, options?: ValidationOptions): ValidationResult {
     options ??= {};
+    const context: ValidationContext = options.context ?? {};
 
     let errors: number = 0;
     const results: Record<ValidationRuleKey, RuleExecutionResult> = {};
@@ -117,7 +119,7 @@ class Validator {
         value,
       };
 
-      const outcome: boolean | ValidationSeverity | RuleExecutionOutcome = configuration.rule(value, args);
+      const outcome: boolean | ValidationSeverity | RuleExecutionOutcome = configuration.rule(value, args, context);
       switch (typeof outcome) {
         case "boolean":
           result.severity = Boolean(outcome) ? "information" : "error";
@@ -144,6 +146,7 @@ class Validator {
     const result: ValidationResult = {
       isValid: errors === 0,
       rules: results,
+      context,
     };
     if (!result.isValid && options.throwOnFailure) {
       throw result;
